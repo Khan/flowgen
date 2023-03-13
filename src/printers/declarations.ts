@@ -339,7 +339,7 @@ export const classDeclaration = <T>(
       clause.types.forEach(classHeritageClause(classMixins, classImplements));
     });
     const mixinsMessage =
-      classMixins.length > 0 ? `mixins ${classMixins.join(",")}` : "";
+      classMixins.length > 0 ? `extends ${classMixins.join(",")}` : "";
     const classImplementsMessage =
       classImplements.length > 0
         ? ` implements ${classImplements.join(",")}`
