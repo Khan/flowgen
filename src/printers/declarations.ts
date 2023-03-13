@@ -147,10 +147,7 @@ const interfaceRecordType = (
   }
 };
 
-const classHeritageClause = (
-  classMixins: string[],
-  classImplements: string[],
-) =>
+const classHeritageClause = (classHeritageTypes: string[]) =>
   withEnv<{ classHeritage?: boolean }, [ts.ExpressionWithTypeArguments], void>(
     (env, type) => {
       env.classHeritage = true;
@@ -163,18 +160,9 @@ const classHeritageClause = (
             symbol,
             type.expression,
           ) + printers.common.generics(type.typeArguments);
-        if (
-          symbol.declarations.some(
-            declaration =>
-              declaration.kind === ts.SyntaxKind.InterfaceDeclaration,
-          )
-        ) {
-          classImplements.push(value);
-        } else {
-          classMixins.push(value);
-        }
+        classHeritageTypes.push(value);
       } else {
-        classMixins.push(printers.node.printType(type));
+        classHeritageTypes.push(printers.node.printType(type));
       }
       env.classHeritage = false;
     },
@@ -336,7 +324,11 @@ export const classDeclaration = <T>(
     const classMixins = [];
     const classImplements = [];
     node.heritageClauses.forEach(clause => {
-      clause.types.forEach(classHeritageClause(classMixins, classImplements));
+      if (clause.token === ts.SyntaxKind.ExtendsKeyword) {
+        clause.types.forEach(classHeritageClause(classMixins));
+      } else if (clause.token === ts.SyntaxKind.ImplementsKeyword) {
+        clause.types.forEach(classHeritageClause(classImplements));
+      }
     });
     const mixinsMessage =
       classMixins.length > 0 ? `extends ${classMixins.join(",")}` : "";
