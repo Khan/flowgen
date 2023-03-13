@@ -151,7 +151,6 @@ const classHeritageClause = (classHeritageTypes: string[]) =>
   withEnv<{ classHeritage?: boolean }, [ts.ExpressionWithTypeArguments], void>(
     (env, type) => {
       env.classHeritage = true;
-      // TODO: refactor this
       const symbol = checker.current.getSymbolAtLocation(type.expression);
       printers.node.fixDefaultTypeArguments(symbol, type);
       if (ts.isIdentifier(type.expression) && symbol) {
