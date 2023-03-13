@@ -39,9 +39,9 @@ declare class implementor
 `;
 
 exports[`should handle static methods ES6 classes 1`] = `
-"declare class Subscribable<T> {}
+"declare interface Subscribable<T> {}
 declare class Operator<T, R> {}
-declare class Observable<T> extends Subscribable<T> {
+declare class Observable<T> implements Subscribable<T> {
   create: Function;
   static create: Function;
   lift<R>(operator: Operator<T, R>): Observable<R>;
