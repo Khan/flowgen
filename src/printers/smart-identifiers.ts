@@ -62,6 +62,28 @@ const setGlobalName = (
   return false;
 };
 
+const eventTypes = {
+  SyntheticEvent: "SyntheticEvent",
+  AnimationEvent: "SyntheticAnimationEvent",
+  CompositionEvent: "SyntheticCompositionEvent",
+  ClipboardEvent: "SyntheticClipboardEvent",
+  UIEvent: "SyntheticUIEvent",
+  FocusEvent: "SyntheticFocusEvent",
+  KeyboardEvent: "SyntheticKeyboardEvent",
+  MouseEvent: "SyntheticMouseEvent",
+  DragEvent: "SyntheticDragEvent",
+  WheelEvent: "SyntheticWheelEvent",
+  PointerEvent: "SyntheticPointerEvent",
+  TouchEvent: "SyntheticTouchEvent",
+  TransitionEvent: "SyntheticTransitionEvent",
+};
+
+const reactTypes = {
+  ComponentType: "FragmentType",
+  ComponentProps: "ElementProps",
+  FC: "StatelessFunctionalComponent",
+};
+
 export function renames(
   symbol: ts.Symbol | void,
   type: ts.TypeReferenceNode | ts.ImportSpecifier,
@@ -82,6 +104,37 @@ export function renames(
       }
     }
     if (ts.isQualifiedName(type.typeName)) {
+      const left = type.typeName.left.getText();
+      const right = type.typeName.right.getText();
+
+      if (left === "React") {
+        if (right in eventTypes) {
+          // React's TypeScript event types can take two type params, but
+          // Flow's can only take one.
+          if (type.typeArguments.length === 2) {
+            // We only need the first one, so we remove the second one.
+            // @ts-expect-error: typeArguments is supposed to be readonly
+            type.typeArguments.pop();
+          }
+          // @ts-expect-error: typeName is supposed to be readonly
+          type.typeName = ts.createIdentifier(eventTypes[right]);
+          return true;
+        }
+
+        if (right in reactTypes) {
+          // @ts-expect-error: typeName is supposed to be readonly
+          type.typeName.right.escapedText = reactTypes[right];
+          return true;
+        }
+      }
+
+      if (left === "React" && right === "ReactElement") {
+        if (type.typeArguments.length === 0) {
+          // @ts-expect-error: typeArguments is supposed to be readonly
+          type.typeArguments = [{ kind: ts.SyntaxKind.AnyKeyword }];
+        }
+      }
+
       return setImportedName(
         symbol.escapedName,
         type.typeName.right,

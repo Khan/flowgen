@@ -4,7 +4,7 @@ exports[`should handle class extends 1`] = `
 "declare class extension {
   getString(): string;
 }
-declare class extender mixins extension {
+declare class extender extends extension {
   getNumber(): number;
 }
 "
@@ -29,7 +29,7 @@ declare interface implementation2 {
 }
 declare class extension {}
 declare class implementor
-  mixins extension
+  extends extension
   implements implementation1, implementation2
 {
   getString(): string;
@@ -41,7 +41,7 @@ declare class implementor
 exports[`should handle static methods ES6 classes 1`] = `
 "declare class Subscribable<T> {}
 declare class Operator<T, R> {}
-declare class Observable<T> mixins Subscribable<T> {
+declare class Observable<T> extends Subscribable<T> {
   create: Function;
   static create: Function;
   lift<R>(operator: Operator<T, R>): Observable<R>;
