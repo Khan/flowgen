@@ -104,8 +104,8 @@ export function renames(
       }
     }
     if (ts.isQualifiedName(type.typeName)) {
-      const left = type.typeName.left.getText(); // ?
-      const right = type.typeName.right.getText(); // ?
+      const left = type.typeName.left.getText();
+      const right = type.typeName.right.getText();
 
       if (left === "React") {
         if (right in eventTypes) {
