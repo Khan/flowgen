@@ -65,6 +65,7 @@ const setGlobalName = (
 const eventTypes = {
   SyntheticEvent: "SyntheticEvent",
   AnimationEvent: "SyntheticAnimationEvent",
+  ChangeEvent: "SyntheticInputEvent",
   CompositionEvent: "SyntheticCompositionEvent",
   ClipboardEvent: "SyntheticClipboardEvent",
   UIEvent: "SyntheticUIEvent",
@@ -79,7 +80,6 @@ const eventTypes = {
 };
 
 const reactTypes = {
-  ComponentType: "FragmentType",
   ComponentProps: "ElementProps",
   FC: "StatelessFunctionalComponent",
 };

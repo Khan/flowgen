@@ -23,6 +23,7 @@ declare function s(event: React.MouseEvent): void;
 declare function s(event: React.TouchEvent): void;
 declare function s(event: React.KeyboardEvent): void;
 declare function s(event: React.FocusEvent): void;
+declare function s(event: React.ChangeEvent): void;
 declare function s(event: React.SyntheticEvent): void;
 `;
   const result = compiler.compileDefinitionString(ts, { quiet: true });
@@ -32,6 +33,7 @@ declare function s(event: React.SyntheticEvent): void;
     declare function s(event: SyntheticTouchEvent<>): void;
     declare function s(event: SyntheticKeyboardEvent<>): void;
     declare function s(event: SyntheticFocusEvent<>): void;
+    declare function s(event: SyntheticInputEvent<>): void;
     declare function s(event: SyntheticEvent<>): void;
     "
   `);
