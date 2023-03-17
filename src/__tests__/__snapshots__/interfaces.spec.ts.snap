@@ -164,9 +164,7 @@ exports[`should support call signature 1`] = `
 "declare interface ObjectSchema<T> {}
 declare interface ObjectSchemaDefinition<T> {}
 declare interface ObjectSchemaConstructor {
-  <T: { [key: string]: any }>(
-    fields?: ObjectSchemaDefinition<T>
-  ): ObjectSchema<T>;
+  <T: { ... }>(fields?: ObjectSchemaDefinition<T>): ObjectSchema<T>;
   new(): ObjectSchema<{ ... }>;
 }
 "

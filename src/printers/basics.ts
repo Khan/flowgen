@@ -9,7 +9,7 @@ const types: {
   BooleanKeyword: "boolean",
   NullKeyword: "null",
   UndefinedKeyword: "void",
-  ObjectKeyword: "{[key: string]: any}",
+  ObjectKeyword: "{...}",
   FalseKeyword: "false",
   TrueKeyword: "true",
   NeverKeyword: "empty",
