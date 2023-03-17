@@ -749,7 +749,12 @@ export const printType = withEnv<any, [any], string>(
 
       case ts.SyntaxKind.IndexSignature:
         if (type.type) {
-          return `[${type.parameters
+          const readonlyMarker = (type.modifiers ?? []).some(
+            m => m.kind === ts.SyntaxKind.ReadonlyKeyword,
+          )
+            ? "+"
+            : "";
+          return `${readonlyMarker}[${type.parameters
             .map(printers.common.parameter)
             .join(", ")}]: ${printType(type.type)}`;
         }
