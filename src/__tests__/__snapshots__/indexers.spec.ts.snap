@@ -4,12 +4,18 @@ exports[`should handle indexers 1`] = `
 "declare type Map = {
   [key: string]: number,
 };
+declare type ReadOnlyMap = {
+  +[key: string]: number,
+};
 "
 `;
 
 exports[`should handle indexers 2`] = `
 "declare type Map = {
   [key: string]: number,
+};
+declare type ReadOnlyMap = {
+  +[key: string]: number,
 };
 "
 `;

@@ -6,6 +6,9 @@ it("should handle indexers", () => {
 type Map = {
   [key: string]: number
 }
+type ReadOnlyMap = {
+  readonly [key: string]: number
+}
 `;
   {
     const result = compiler.compileDefinitionString(ts, { quiet: true });
