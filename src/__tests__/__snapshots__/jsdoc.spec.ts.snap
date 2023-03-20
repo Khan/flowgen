@@ -55,7 +55,7 @@ declare class ECharts {}
  *     not initialize multiple ECharts instances on a single container.
  * @param {HTMLDivElement | HTMLCanvasElement} dom Instance container,
  * usually is a \`div\` element with height and width defined.
- * @param {{[key: string]: any} | string} [theme] Theme to be applied.
+ * @param {{...} | string} [theme] Theme to be applied.
  * This can be a configuring object of a theme, or a theme name
  * registered through [echarts.registerTheme](https://echarts.apache.org/api.html#echarts.registerTheme).
  * @param {object} [opts] Chart configurations.
@@ -73,7 +73,7 @@ declare class ECharts {}
  */
 declare function init(
   dom: HTMLDivElement | HTMLCanvasElement,
-  theme?: { [key: string]: any } | string,
+  theme?: { ... } | string,
   opts?: {
     devicePixelRatio?: number,
     renderer?: string,
