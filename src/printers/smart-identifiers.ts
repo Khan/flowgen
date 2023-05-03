@@ -89,9 +89,6 @@ export function renames(
   symbol: ts.Symbol | void,
   type: ts.TypeReferenceNode | ts.ImportSpecifier,
 ): boolean {
-  console.log("renames");
-  console.log(!symbol);
-
   if (
     type.kind === ts.SyntaxKind.TypeReference &&
     ts.isQualifiedName(type.typeName)
