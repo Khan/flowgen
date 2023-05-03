@@ -82,12 +82,85 @@ const eventTypes = {
 const reactTypes = {
   ComponentProps: "ElementProps",
   FC: "StatelessFunctionalComponent",
+  ForwardedRef: "Ref",
 };
 
 export function renames(
   symbol: ts.Symbol | void,
   type: ts.TypeReferenceNode | ts.ImportSpecifier,
 ): boolean {
+  console.log("renames");
+  console.log(!symbol);
+
+  if (
+    type.kind === ts.SyntaxKind.TypeReference &&
+    ts.isQualifiedName(type.typeName)
+  ) {
+    const left = type.typeName.left.getText();
+    const right = type.typeName.right.getText();
+
+    if (left === "React") {
+      if (right in eventTypes) {
+        // React's TypeScript event types can take two type params, but
+        // Flow's can only take one.
+        if (type.typeArguments.length === 2) {
+          // We only need the first one, so we remove the second one.
+          // @ts-expect-error: typeArguments is supposed to be readonly
+          type.typeArguments.pop();
+        }
+        // @ts-expect-error: typeName is supposed to be readonly
+        type.typeName = ts.createIdentifier(eventTypes[right]);
+        return true;
+      }
+
+      if (right in reactTypes) {
+        // @ts-expect-error: typeName is supposed to be readonly
+        type.typeName.right.escapedText = reactTypes[right];
+        return true;
+      }
+    }
+
+    if (left === "React" && right === "ForwardRefExoticComponent") {
+      const typeArg = type.typeArguments[0];
+      if (ts.isIntersectionTypeNode(typeArg)) {
+        const [props, maybeRefAttributes] = typeArg.types;
+
+        if (
+          ts.isTypeReferenceNode(maybeRefAttributes) &&
+          ts.isQualifiedName(maybeRefAttributes.typeName)
+        ) {
+          const left = maybeRefAttributes.typeName.left.getText();
+          const right = maybeRefAttributes.typeName.right.getText();
+
+          if (
+            left === "React" &&
+            right === "RefAttributes" &&
+            maybeRefAttributes.typeArguments
+          ) {
+            const instance = maybeRefAttributes.typeArguments[0];
+
+            // @ts-expect-error: typeArguments is supposed to be readonly
+            type.typeArguments = [props, instance];
+
+            // @ts-expect-error: typeName is supposed to be readonly
+            type.typeName.right.escapedText = "AbstractComponent";
+            return true;
+          }
+        }
+      } else if (typeArg.kind === ts.SyntaxKind.AnyKeyword) {
+        // @ts-expect-error: typeArguments is supposed to be readonly
+        type.typeArguments = [
+          ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
+          ts.factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
+        ];
+
+        // @ts-expect-error: typeName is supposed to be readonly
+        type.typeName.right.escapedText = "AbstractComponent";
+        return true;
+      }
+    }
+  }
+
   if (!symbol) return false;
   if (!symbol.declarations) return false;
   const decl = symbol.declarations[0];
@@ -106,27 +179,6 @@ export function renames(
     if (ts.isQualifiedName(type.typeName)) {
       const left = type.typeName.left.getText();
       const right = type.typeName.right.getText();
-
-      if (left === "React") {
-        if (right in eventTypes) {
-          // React's TypeScript event types can take two type params, but
-          // Flow's can only take one.
-          if (type.typeArguments.length === 2) {
-            // We only need the first one, so we remove the second one.
-            // @ts-expect-error: typeArguments is supposed to be readonly
-            type.typeArguments.pop();
-          }
-          // @ts-expect-error: typeName is supposed to be readonly
-          type.typeName = ts.createIdentifier(eventTypes[right]);
-          return true;
-        }
-
-        if (right in reactTypes) {
-          // @ts-expect-error: typeName is supposed to be readonly
-          type.typeName.right.escapedText = reactTypes[right];
-          return true;
-        }
-      }
 
       if (left === "React" && right === "ReactElement") {
         if (type.typeArguments.length === 0) {
