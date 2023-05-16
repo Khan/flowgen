@@ -82,13 +82,13 @@ const eventTypes = {
 const reactTypes = {
   ComponentProps: "ElementProps",
   FC: "StatelessFunctionalComponent",
-  ForwardedRef: "Ref",
+  // ForwardedRef: "Ref",
 };
 
 export function renames(
   symbol: ts.Symbol | void,
   type: ts.TypeReferenceNode | ts.ImportSpecifier,
-): boolean {
+): boolean | ts.Node {
   if (
     type.kind === ts.SyntaxKind.TypeReference &&
     ts.isQualifiedName(type.typeName)
@@ -114,6 +114,33 @@ export function renames(
         // @ts-expect-error: typeName is supposed to be readonly
         type.typeName.right.escapedText = reactTypes[right];
         return true;
+      }
+    }
+
+    /**
+     * Convert React.ForwardRef<T> to {|current: T | null|}
+     *
+     * NOTE(kevinb): We can't output {|current: ?T|} because the TypeScript
+     * AST doesn't have a nullable operator and the way Flowgen works
+     * is that it operators on a TS AST and then has a printer which
+     * does the final conversion to Flow syntax.
+     */
+    if (left === "React" && right === "ForwardedRef") {
+      const typeArg = type.typeArguments[0];
+      const { parent } = type;
+      if (ts.isPropertySignature(parent)) {
+        return ts.createTypeLiteralNode([
+          ts.createPropertySignature(
+            [],
+            "current",
+            undefined,
+            ts.createUnionTypeNode([
+              typeArg,
+              // @ts-expect-error: createKeywordTypeNode doesn't like being passed NullKeyword
+              ts.createKeywordTypeNode(ts.SyntaxKind.NullKeyword),
+            ]),
+          ),
+        ]);
       }
     }
 

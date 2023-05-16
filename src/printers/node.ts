@@ -623,14 +623,18 @@ export const printType = withEnv<any, [any], string>(
 
           //$todo
           fixDefaultTypeArguments(symbol, type);
-          const isRenamed = renames(symbol, type);
-          if (!isRenamed) {
+          const isRenamedOrReplaceWithNode = renames(symbol, type);
+          if (!isRenamedOrReplaceWithNode) {
             //$todo weird union errors
             // @ts-expect-error todo(flow->ts)
             type.typeName.escapedText = getFullyQualifiedName(
               symbol,
               type.typeName,
             );
+          }
+
+          if (typeof isRenamedOrReplaceWithNode !== "boolean") {
+            return printType(isRenamedOrReplaceWithNode);
           }
 
           const getAdjustedType = targetSymbol => {
