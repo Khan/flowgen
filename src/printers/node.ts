@@ -5,7 +5,10 @@ import * as printers from "./index";
 import { checker } from "../checker";
 import * as logger from "../logger";
 import { withEnv } from "../env";
-import { renames, getLeftMostEntityName } from "./smart-identifiers";
+import {
+  renamesOrReplacesNode,
+  getLeftMostEntityName,
+} from "./smart-identifiers";
 import { printErrorMessage } from "../errors/error-message";
 import { opts } from "../options";
 
@@ -623,14 +626,18 @@ export const printType = withEnv<any, [any], string>(
 
           //$todo
           fixDefaultTypeArguments(symbol, type);
-          const isRenamed = renames(symbol, type);
-          if (!isRenamed) {
+          const isRenamedOrReplacedNode = renamesOrReplacesNode(symbol, type);
+          if (!isRenamedOrReplacedNode) {
             //$todo weird union errors
             // @ts-expect-error todo(flow->ts)
             type.typeName.escapedText = getFullyQualifiedName(
               symbol,
               type.typeName,
             );
+          }
+
+          if (typeof isRenamedOrReplacedNode !== "boolean") {
+            return printType(isRenamedOrReplacedNode);
           }
 
           const getAdjustedType = targetSymbol => {
@@ -831,7 +838,7 @@ export const printType = withEnv<any, [any], string>(
         if (checker.current) {
           //$todo some weird union errors
           const symbol = checker.current.getSymbolAtLocation(type.name);
-          renames(symbol, type);
+          renamesOrReplacesNode(symbol, type);
         }
         return printers.relationships.importExportSpecifier(type);
 

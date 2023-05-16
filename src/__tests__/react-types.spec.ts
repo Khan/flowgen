@@ -50,7 +50,7 @@ declare const Bar: React.ForwardRefExoticComponent<any>;
     expect(result).toBeValidFlowTypeDeclarations();
   });
 
-  test("React.ForwardedRef should become React.Ref", () => {
+  test("React.ForwardedRef should become {|current: T | null|}", () => {
     const ts = `type WithForwardRef = {
     forwardedRef: React.ForwardedRef<HTMLInputElement>;
 };`;
@@ -58,7 +58,9 @@ declare const Bar: React.ForwardRefExoticComponent<any>;
     const result = compiler.compileDefinitionString(ts, { inexact: false });
     expect(beautify(result)).toMatchInlineSnapshot(`
       "declare type WithForwardRef = {|
-        forwardedRef: React$Ref<HTMLInputElement>,
+        forwardedRef: {|
+          current: HTMLInputElement | null,
+        |},
       |};
       "
     `);
