@@ -82,10 +82,11 @@ const eventTypes = {
 const reactTypes = {
   ComponentProps: "ElementProps",
   FC: "StatelessFunctionalComponent",
-  // ForwardedRef: "Ref",
 };
 
-export function renames(
+// This function will either rename the node or, if it's React.ForwardedRef<T> it
+// will return a new node containing the type literal {current: T | null}.
+export function renamesOrReplacesNode(
   symbol: ts.Symbol | void,
   type: ts.TypeReferenceNode | ts.ImportSpecifier,
 ): boolean | ts.Node {
